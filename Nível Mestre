@@ -1,0 +1,111 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+typedef struct {
+    char nome[30];
+    char cor[10];
+    int tropas;
+} Territorio;
+
+void atacar(Territorio *atacante, Territorio *defensor) {
+    int dadoAtaque = rand() % 6 + 1;
+    int dadoDefesa = rand() % 6 + 1;
+
+    printf("\n%s ataca %s!\n", atacante->nome, defensor->nome);
+    printf("Dado atacante: %d | Dado defensor: %d\n", dadoAtaque, dadoDefesa);
+
+    if (dadoAtaque >= dadoDefesa) {
+        defensor->tropas -= 1;
+        if (defensor->tropas <= 0) {
+            strcpy(defensor->cor, atacante->cor);
+            defensor->tropas = atacante->tropas / 2;
+            printf("%s conquistou %s!\n", atacante->nome, defensor->nome);
+        }
+    } else {
+        atacante->tropas -= 1;
+        printf("%s perdeu uma tropa.\n", atacante->nome);
+    }
+}
+
+void atribuirMissao(char *destino, char *missoes[], int totalMissoes) {
+    int idx = rand() % totalMissoes;
+    strcpy(destino, missoes[idx]);
+}
+
+void exibirMapa(Territorio *mapa, int n) {
+    printf("\nMapa Atual:\n");
+    for (int i = 0; i < n; i++){
+        printf("%d: %s | Cor: %s | Tropas: %d\n", i + 1, mapa[i].nome, mapa[i].cor, mapa[i].tropas);
+    }
+}
+
+void liberarMemoria(Territorio *mapa, char **missoes, int numJogadores) {
+    free(mapa);
+    for (int i = 0; i < numJogadores; i++)
+        free(missoes[i]);
+    free(missoes);
+}
+
+int main() {
+    srand(time(NULL));
+
+    int n, numJogadores = 2;
+    printf("Número de territórios: ");
+    scanf("%d", &n);
+    getchar();
+
+    Territorio *mapa = (Territorio *)calloc(n, sizeof(Territorio));
+
+    for (int i = 0; i < n; i++) {
+        printf("Território %d nome: ", i + 1);
+        fgets(mapa[i].nome, 30, stdin);
+        mapa[i].nome[strcspn(mapa[i].nome, "\n")] = '\0';
+
+        printf("Cor do exército: ");
+        fgets(mapa[i].cor, 10, stdin);
+        mapa[i].cor[strcspn(mapa[i].cor, "\n")] = '\0';
+
+        printf("Tropas: ");
+        scanf("%d", &mapa[i].tropas);
+        getchar();
+    }
+
+    char *listaMissoes[] = {
+        "Destruir o exército Verde",
+        "Conquistar 3 territórios",
+        "Elimine todas as tropas Vermelhas",
+        "Conquistar territórios seguidos",
+        "Manter mais de 5 tropas em um território"
+    };
+    char **missoesJogadores = (char **)malloc(numJogadores * sizeof(char *));
+    for (int i = 0; i < numJogadores; i++) {
+        missoesJogadores[i] = (char *)malloc(100 * sizeof(char));
+        atribuirMissao(missoesJogadores[i], listaMissoes, 5);
+        printf("Missão do Jogador %d: %s\n", i + 1, missoesJogadores[i]);
+    }
+
+    int opcao;
+    do {
+        exibirMapa(mapa, n);
+        printf("\nMenu:\n1 - Atacar\n2 - Verificar Missão\n0 - Sair\nOpção: ");
+        scanf("%d", &opcao);
+        getchar();
+
+        if (opcao == 1) {
+            int atk, def;
+            printf("Escolha atacante: "); scanf("%d", &atk);
+            printf("Escolha defensor: "); scanf("%d", &def);
+            getchar();
+            atacar(&mapa[atk - 1], &mapa[def - 1]);
+        } else if (opcao == 2) {
+            printf("Verificação de missões (exemplo simplificado):\n");
+            for (int i = 0; i < numJogadores; i++)
+                printf("Jogador %d missão: %s\n", i + 1, missoesJogadores[i]);
+        }
+    } while (opcao != 0);
+
+    liberarMemoria(mapa, missoesJogadores, numJogadores);
+    return 0;
+}
