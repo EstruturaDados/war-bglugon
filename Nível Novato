@@ -1,33 +1,46 @@
 #include <stdio.h>
 #include <string.h>
 
+// Definição de uma estrutura chamada "Territorio" que armazena informações sobre cada um
 typedef struct {
-    char nome[30];
-    char cor[10];
-    int tropas;
+    char nome[30];  // Nome do território
+    char cor[10];   // Cor do exército
+    int tropas;     // Número de tropas no território
 } Territorio;
 
 int main() {
-    Territorio mapa[5];
+    Territorio mapa[5]; // Criação de um vetor com 5 territórios
+
+    // Loop para cadastrar os 5 territórios
     for (int i = 0; i < 5; i++) {
         printf("Cadastro do Território %d:\n", i + 1);
+
+        // Lê o nome do território
         printf("Nome: ");
         fgets(mapa[i].nome, 30, stdin);
         mapa[i].nome[strcspn(mapa[i].nome, "\n")] = '\0'; 
+        // Remove o caractere '\n' (Enter) do final da string
 
+        // Lê a cor do exército
         printf("Cor do exército: ");
         fgets(mapa[i].cor, 10, stdin);
-        mapa[i].cor[strcspn(mapa[i].cor, "\n")] = '\0';
+        mapa[i].cor[strcspn(mapa[i].cor, "\n")] = '\0'; 
+        // Também remove o '\n' da cor
 
+        // Lê o número de tropas
         printf("Número de tropas: ");
         scanf("%d", &mapa[i].tropas);
-        getchar(); 
-        printf("\n");
+        getchar(); // Limpa o buffer do teclado - remove o '\n' deixado pelo scanf
+
+        printf("\n"); // Quebra de linha para organizar a saída
     }
+
+    // Exibe o mapa completo com os dados cadastrados
     printf("Mapa Atual:\n");
     for (int i = 0; i < 5; i++) {
         printf("Território %d: %s | Cor: %s | Tropas: %d\n",
                i + 1, mapa[i].nome, mapa[i].cor, mapa[i].tropas);
     }
-    return 0;
+
+    return 0; // Indica que o programa terminou com sucesso
 }
