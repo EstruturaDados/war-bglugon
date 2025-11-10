@@ -1,83 +1,110 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
+#include <time.h>   
 
+// Estrutura que representa um território
 typedef struct {
-    char nome[30];
-    char cor[10];
-    int tropas;
+    char nome[30];   // Nome do território
+    char cor[10];    // Cor do exército que o controla
+    int tropas;      // Número de tropas no território
 } Territorio;
 
+// Função que simula um ataque entre dois territórios
 void atacar(Territorio *atacante, Territorio *defensor) {
+    // Sorteia valores de 1 a 6 simulando o lançamento de um dado
     int dadoAtaque = rand() % 6 + 1;
     int dadoDefesa = rand() % 6 + 1;
 
+    // Mostra quem está atacando quem
     printf("\n%s ataca %s!\n", atacante->nome, defensor->nome);
     printf("Dado do atacante: %d | Dado do defensor: %d\n", dadoAtaque, dadoDefesa);
 
+    // Se o atacante tirar um número maior ou igual, ele vence o combate
     if (dadoAtaque >= dadoDefesa) {
         printf("%s vence o combate!\n", atacante->nome);
-        defensor->tropas -= 1;
+        defensor->tropas -= 1;  // O defensor perde uma tropa
+
+        // Se o defensor ficar sem tropas, o território é conquistado
         if (defensor->tropas <= 0) {
             printf("%s conquistou %s!\n", atacante->nome, defensor->nome);
-            strcpy(defensor->cor, atacante->cor);
-            defensor->tropas = atacante->tropas / 2;
+            strcpy(defensor->cor, atacante->cor);       // Muda a cor do território para a do atacante
+            defensor->tropas = atacante->tropas / 2;    // Metade das tropas do atacante ocupa o novo território
         }
     } else {
+        // Caso o defensor ganhe, o atacante perde uma tropa
         printf("%s perde uma tropa.\n", atacante->nome);
         atacante->tropas -= 1;
     }
 }
 
+// Função principal
 int main() {
-    srand(time(NULL));
+    srand(time(NULL)); // Inicializa o gerador de números aleatórios com base no tempo atual
 
     int n;
     printf("Número de territórios: ");
-    scanf("%d", &n);
-    getchar();
+    scanf("%d", &n);  // Lê a quantidade de territórios
+    getchar();        // Limpa o buffer do teclado
 
+    // Aloca dinamicamente um vetor de territórios com n posições
     Territorio *mapa = (Territorio *)calloc(n, sizeof(Territorio));
 
+    // Cadastro dos territórios
     for (int i = 0; i < n; i++) {
         printf("Cadastro do Território %d:\n", i + 1);
+
+        // Lê o nome do território
         printf("Nome: ");
         fgets(mapa[i].nome, 30, stdin);
-        mapa[i].nome[strcspn(mapa[i].nome, "\n")] = '\0';
+        mapa[i].nome[strcspn(mapa[i].nome, "\n")] = '\0'; // Remove o '\n' do final
 
+        // Lê a cor do exército
         printf("Cor do exército: ");
         fgets(mapa[i].cor, 10, stdin);
         mapa[i].cor[strcspn(mapa[i].cor, "\n")] = '\0';
 
+        // Lê o número de tropas
         printf("Número de tropas: ");
         scanf("%d", &mapa[i].tropas);
-        getchar();
+        getchar(); // Remove o '\n' restante no buffer
+
         printf("\n");
     }
 
+    // Início do loop de jogo - menu de ataques
     char opcao;
     do {
+        // Exibe o mapa atualizado
         printf("\nMapa Atual:\n");
         for (int i = 0; i < n; i++){
-            printf("%d: %s | Cor: %s | Tropas: %d\n", i + 1, mapa[i].nome, mapa[i].cor, mapa[i].tropas);
+            printf("%d: %s | Cor: %s | Tropas: %d\n",
+                   i + 1, mapa[i].nome, mapa[i].cor, mapa[i].tropas);
         }
+
+        // Escolha dos territórios para o ataque
         int atk, def;
         printf("Escolha território atacante (1-%d, 0 para sair): ", n);
         scanf("%d", &atk);
-        if (atk == 0) break;
+        if (atk == 0) break; // Se digitar 0, o jogo termina
+
         printf("Escolha território defensor (1-%d): ", n);
         scanf("%d", &def);
-        getchar();
+        getchar(); // Limpa o buffer
 
+        // Verifica se as escolhas são válidas
         if (atk < 1 || atk > n || def < 1 || def > n || atk == def) {
             printf("Seleção inválida!\n");
-            continue;
+            continue; // Volta ao menu principal
         }
 
+        // Executa a função de ataque
         atacar(&mapa[atk - 1], &mapa[def - 1]);
-    } while (1);
 
-    free(mapa);
-    return 0;
+    } while (1); // Loop infinito até o jogador digitar 0
+
+    // Liberação de memória
+    free(mapa); // Libera a memória alocada para o vetor de territórios
+
+    return 0; // Fim do programa
 }
